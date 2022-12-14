@@ -1,8 +1,17 @@
 [package]
-name = "part-02-error-management"
+name = "part-03-error-management"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+thiserror="1.0.37"
+
+[[bin]]
+name="basic_error_mngt"
+path="src/basic_error_mngt.rs"
+
+[[bin]]
+name="good_error_mngt"
+path="src/good_error_mngt.rs"
