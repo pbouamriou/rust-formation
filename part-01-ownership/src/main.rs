@@ -1,3 +1,27 @@
+macro_rules! disable {
+    ($($t:tt)*) => {};
+}
+
+macro_rules! enable {
+    ($($t:tt)*) => {
+        $($t)*
+    };
+}
+
+macro_rules! activate_code {
+    (false ; $comment:literal ; $($t:tt)*) => {
+        disable!{
+            $($t)*
+        }
+    };
+
+    (true ; $comment:literal ; $($t:tt)*) => {
+        enable!{
+            $($t)*
+        }
+    };
+}
+
 #[derive(Debug)]
 enum OptionU32 {
     OK(u32),
@@ -53,6 +77,8 @@ fn ownership_with_simple_types() {
     let mut inside_hygrometry: f64 = 0.84; // in percent
     let outdoor_hygrometry = &inside_hygrometry;
 
+    println!("Outdoor hygrometry : {}", outdoor_hygrometry);
+
     // inside_hygrometry = 0.88; // Error inside_hygrometry is borrow with outdoor_hygrometry
 
     println!("Hygrometry = {}, {}", inside_hygrometry, outdoor_hygrometry);
@@ -74,9 +100,11 @@ fn ownership_with_complex_types() {
     };
 
     let neighbour_car = my_car;
-    let friend_car = neighbour_car.clone(); // Ok Copy
 
     // println!("My car = {:?}", my_car); // Error my_car is moved to neighbour_car
+
+    let friend_car = neighbour_car.clone(); // Ok Copy
+
     println!(
         "My car = {:?}, friend_car = {:?}",
         neighbour_car, friend_car
@@ -84,7 +112,7 @@ fn ownership_with_complex_types() {
 
     display_car(neighbour_car);
 
-    // println!("My car = {:?}", neighbour_car); // Error neighbour_car is moved to consume_car()
+    // println!("My car = {:?}", neighbour_car); // Error neighbour_car is moved to display_car()
 
     display_car_by_reference(&friend_car);
 
@@ -126,8 +154,48 @@ fn ownership_loops() {
     }
 }
 
+fn mutability_and_const() {
+    const MAX_ELEMENTS: u32 = 100;
+    let max = MAX_ELEMENTS;
+
+    println!("Max elements : {}", max);
+
+    let mut index = MAX_ELEMENTS;
+    while index > 0 {
+        index -= 1;
+        println!("Index : {}", index);
+    }
+}
+
+fn multiple_unmutable_references() {
+    let ma_variable = "ma chaine".to_string();
+
+    let ref1 = &ma_variable;
+    let ref2 = &ma_variable;
+
+    println!("ma_variable = {} {} {}", ma_variable, ref1, ref2);
+}
+
+fn multiple_references() {
+    let mut color = "blue".to_string();
+    {
+        let ref_color = &mut color;
+        *ref_color = "yellow".to_string();
+        let ref2_color = &mut color;
+        println!("color = {:?}", ref2_color);
+        //println!("color = {:?}, {:?}", ref_color, ref2_color);
+    }
+    println!("color = {:?}", color);
+}
+
 fn main() {
+    mutability_and_const();
+
     ownership_with_simple_types();
     ownership_with_complex_types();
+
+    multiple_references();
+    multiple_unmutable_references();
+
     ownership_loops();
 }

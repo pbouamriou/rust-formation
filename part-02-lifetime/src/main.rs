@@ -59,7 +59,7 @@ fn make_10<'a>() -> &'a u64 {
 }
 
 fn result_reference_10<'b>() -> &'b u64 {
-    &make_10()
+    make_10()
 }
 
 activate_code! {
@@ -79,15 +79,15 @@ activate_code! {
     "Reference can have two lifetime (a or b)";
     fn longest<'a>(a: &'a str, b: &'a str) -> &'a str {
         if a.len() > b.len() {
-            return a;
+            a
         } else {
-            return b;
+            b
         }
     }
 }
 
 fn main() {
-    const TEACHER_NAME: &'static str = "Paul";
+    const TEACHER_NAME: &str = "Paul"; /* 'static */
     let mut teacher = Teacher {
         name: TEACHER_NAME,
         age: 25,
@@ -100,8 +100,9 @@ fn main() {
     );
 
     {
-        let arg0 = env::args().next().unwrap();
-        teacher.name = arg0.as_str();
+        if let Some(arg0) = env::args().next() {
+            teacher.name = arg0.as_str();
+        }
     }
 
     activate_code! {
@@ -117,12 +118,12 @@ fn main() {
         false;
         "Error: result can reference on long which have not enough lifetime";
 
-        let short = "short";
-        let mut result = "";
+        let short: &str = "short";
+        let mut result : &str = "";
         println!("Longest = {}", result);
         {
-            let temp_str = "very very long".to_string();
-            let long = temp_str.as_str();
+            let temp_str: String = "very very long".to_string();
+            let long: &str = temp_str.as_str();
             result = longest(short, long);
         }
 
@@ -133,10 +134,25 @@ fn main() {
         true;
         "Error: result can reference on long which have not enough lifetime";
 
-        let mut result = "";
-        let temp_str = "very very long".to_string();
-        let long = temp_str.as_str();
-        let short = "short";
+        let short : &str = "short";
+        let mut result : &str = "";
+        println!("Longest = {}", result);
+        {
+            let long: &str = "very very long";
+            result = longest(short, long);
+        }
+
+        println!("Longest = {}", result);
+    }
+
+    activate_code! {
+        true;
+        "Error: result can reference on long which have not enough lifetime";
+
+        let mut result : &str = "";
+        let temp_str: String = "very very long".to_string();
+        let long: &str = temp_str.as_str();
+        let short: &str = "short";
         println!("Longest = {}", result);
         {
             result = longest(short, long);
