@@ -144,7 +144,7 @@ fn ownership_loops() {
     };
 
     activate_code! {
-        true;
+        false;
         "Car is moved at first iteration";
 
         for index in 1..=10 {
