@@ -143,14 +143,40 @@ fn ownership_loops() {
         width_in_meters: 3.0,
     };
 
-    for index in 1..=10 {
-        // let temp_car = car; // Error car is moved at first iteration
-        let temp_car = &mut car;
-        // let another_temp_car = &car; // Error, already borrowed (temp_car)
+    activate_code! {
+        true;
+        "Car is moved at first iteration";
 
-        temp_car.height_in_meters += 0.02;
+        for index in 1..=10 {
+            let temp_car = car; // Error car is moved at first iteration
+            println!("Car [iter={}] = {:?}", index, temp_car);
+        }
+    }
 
-        println!("Car [iter={}] = {:?}", index, temp_car);
+    activate_code! {
+        false;
+        "Use shadowing";
+
+        for index in 1..=10 {
+            let temp_car = &mut car;
+            let another_temp_car = &car; // Error, already borrowed (temp_car)
+
+            temp_car.height_in_meters += 0.02;
+
+            println!("Car [iter={}] = {:?} ({:?})", index, temp_car, another_temp_car);
+        }
+    }
+
+    activate_code! {
+        true;
+        "Use shadowing";
+
+        for index in 1..=10 {
+            let temp_car = &mut car;
+            temp_car.height_in_meters += 0.02;
+
+            println!("Car [iter={}] = {:?}", index, temp_car);
+        }
     }
 }
 
